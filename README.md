@@ -2,7 +2,7 @@
 
 GlassDFIR is a modern, feature-rich Windows Digital Forensics and Incident Response (DFIR) tool designed to streamline evidence collection, analysis, and timeline visualization. Built with WPF and .NET 9, it integrates powerful forensic tools into a unified, user-friendly interface.
 
-![Dashboard](GlassDFIR\Assets\dashboard.png)
+![Dashboard](GlassDFIR/Assets/dashboard.png)
 
 ## 🚀 Features
 
@@ -21,7 +21,7 @@ GlassDFIR is a modern, feature-rich Windows Digital Forensics and Incident Respo
 - **Query History**: Dedicated sub-blade for analyzing search queries extracted from browser history.
 - **Theming**: Sleek "Tokyo Night" theme for reduced eye strain during long investigations.
 
-![Timeline](GlassDFIR\Assets\timeline.png)
+![Timeline](GlassDFIR/Assets/timeline.png)
 
 ### **Tool Integration**
 Seamlessly runs industry-standard tools:
@@ -77,7 +77,7 @@ GlassDFIR organizes outputs into "Cases".
 - **Default Output**: `GlassDFIR_Output/` directory.
 - **Evidence Collection**: Collect only the evidence you require with a click of a button.
 - **Custom Cases**: Create and manage cases to keep evidence separated.
-![alt text](GlassDFIR\Assets\case.png)
+![alt text](GlassDFIR/Assets/case.png)
 
 ## ⚠️ Notes
 
