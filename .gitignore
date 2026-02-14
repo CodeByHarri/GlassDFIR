@@ -1,0 +1,33 @@
+﻿# Build results
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio user-specific files
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+
+# Logs
+*.log
+diagnostic_errors.txt
+msbuild.log
+msbuild1.log
+crash.log
+
+# Temporary files
+ReproduceCrash/
+GlassDFIR_*_wpftmp.csproj
+Thumbs.db
+.DS_Store
+
+# Tool Dependencies and Output
+GlassDFIR_Output/
+Tools/
+net9/
+\!!!RemoteFileDetails.csv
+tools_list.txt
+
+# CSV Files (Output artifacts)
+*.csv

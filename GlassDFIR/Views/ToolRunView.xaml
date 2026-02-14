@@ -1,0 +1,565 @@
+<UserControl x:Class="GlassDFIR.Views.ToolRunView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:GlassDFIR.Views"
+             xmlns:vm="clr-namespace:GlassDFIR.ViewModels"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Button Content="← Back" Command="{Binding CloseCommand}" Padding="10,5" Margin="0,0,20,0" Background="Transparent" BorderThickness="0" Foreground="{StaticResource PrimaryActionBrush}" Cursor="Hand"/>
+            <TextBlock Grid.Column="1" Text="{Binding Title}" FontSize="24" FontWeight="Bold" VerticalAlignment="Center"/>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+            <!-- Progress Indicators -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,15,0" VerticalAlignment="Center">
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+                <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" Margin="0,0,15,0" Foreground="{StaticResource SecondaryTextBrush}" FontSize="11" FontStyle="Italic"/>
+                <TextBlock Text="{Binding ElapsedTime}" VerticalAlignment="Center" Margin="0,0,10,0" FontFamily="Consolas" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}"/>
+                <ProgressBar Width="120" Height="6" IsIndeterminate="True" BorderThickness="0" Background="Transparent"/>
+            </StackPanel>
+
+            <Button Content="Execute" Command="{Binding ExecuteCommand}" Padding="15,5" IsEnabled="{Binding IsRunning, Converter={StaticResource InverseBooleanConverter}}"/>
+        </StackPanel>
+        </Grid>
+
+        <!-- Configuration -->
+        <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="10" Margin="0,0,0,10">
+            <StackPanel>
+                <Grid Margin="0,0,0,10">
+                    <Grid.Style>
+                        <Style TargetType="Grid">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsMFTECmd}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsLECmd}" Value="True"/>
+                                        <Condition Binding="{Binding IsLECmdManualMode}" Value="False"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </MultiDataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsJLECmd}" Value="True"/>
+                                        <Condition Binding="{Binding IsJLECmdManualMode}" Value="False"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </MultiDataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsWxTCmd}" Value="True"/>
+                                        <Condition Binding="{Binding IsWxTCmdManualMode}" Value="False"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </MultiDataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsSBECmd}" Value="True"/>
+                                        <Condition Binding="{Binding IsSBECmdManualMode}" Value="False"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </MultiDataTrigger>
+                                <DataTrigger Binding="{Binding IsBrowserHistory}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Target (File/Dir):" VerticalAlignment="Center" Foreground="{StaticResource PrimaryTextBrush}"/>
+                    <TextBox Grid.Column="1" Text="{Binding InputPath}" Margin="5,0"/>
+                    <Button Grid.Column="2" Content="..." Command="{Binding BrowseInputCommand}" Width="30" ToolTip="Browse for File or Folder"/>
+                </Grid>
+
+                <!-- LECmd User Selection -->
+                <StackPanel Margin="0,0,0,10">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsLECmd}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <TextBlock Text="LECmd Scan Mode:" FontWeight="Bold" Foreground="{StaticResource PrimaryActionBrush}" Margin="0,0,0,5"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <RadioButton GroupName="LECmdMode" Content="Scan User Profiles" IsChecked="{Binding IsLECmdManualMode, Converter={StaticResource InverseBooleanConverter}}" Margin="0,0,15,0" Foreground="{StaticResource PrimaryTextBrush}"/>
+                        <RadioButton GroupName="LECmdMode" Content="Manual Folder Selection" IsChecked="{Binding IsLECmdManualMode}" Foreground="{StaticResource PrimaryTextBrush}"/>
+                    </StackPanel>
+
+                    <StackPanel>
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsLECmdManualMode}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <TextBlock Text="Select User Profiles to Scan:" FontWeight="Bold" Foreground="{StaticResource PrimaryActionBrush}" Margin="0,0,0,5"/>
+                        <ScrollViewer MaxHeight="100" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding UserProfiles}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                    <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" Margin="0,0,0,5" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </StackPanel>
+                </StackPanel>
+
+
+
+                <!-- JLECmd User Selection (Duplicate of LECmd logic) -->
+                <StackPanel Margin="0,0,0,10">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsJLECmd}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <TextBlock Text="JLECmd Scan Mode:" FontWeight="Bold" Foreground="{StaticResource PrimaryActionBrush}" Margin="0,0,0,5"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <RadioButton GroupName="JLECmdMode" Content="Scan User Profiles" IsChecked="{Binding IsJLECmdManualMode, Converter={StaticResource InverseBooleanConverter}}" Margin="0,0,15,0" Foreground="{StaticResource PrimaryTextBrush}"/>
+                        <RadioButton GroupName="JLECmdMode" Content="Manual Folder Selection" IsChecked="{Binding IsJLECmdManualMode}" Foreground="{StaticResource PrimaryTextBrush}"/>
+                    </StackPanel>
+
+                    <StackPanel>
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsJLECmdManualMode}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <TextBlock Text="Select User Profiles to Scan:" FontWeight="Bold" Foreground="{StaticResource PrimaryActionBrush}" Margin="0,0,0,5"/>
+                        <ScrollViewer MaxHeight="100" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding UserProfiles}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                    <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" Margin="0,0,0,5" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- WxTCmd User Selection -->
+                <StackPanel Margin="0,0,0,10">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsWxTCmd}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <TextBlock Text="WxTCmd Scan Mode:" FontWeight="Bold" Foreground="{StaticResource PrimaryActionBrush}" Margin="0,0,0,5"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <RadioButton GroupName="WxTCmdMode" Content="Scan User Profiles" IsChecked="{Binding IsWxTCmdManualMode, Converter={StaticResource InverseBooleanConverter}}" Margin="0,0,15,0" Foreground="{StaticResource PrimaryTextBrush}"/>
+                        <RadioButton GroupName="WxTCmdMode" Content="Manual Folder Selection" IsChecked="{Binding IsWxTCmdManualMode}" Foreground="{StaticResource PrimaryTextBrush}"/>
+                    </StackPanel>
+
+                    <StackPanel>
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsWxTCmdManualMode}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <TextBlock Text="Select User Profiles to Scan:" FontWeight="Bold" Foreground="{StaticResource PrimaryActionBrush}" Margin="0,0,0,5"/>
+                        <ScrollViewer MaxHeight="100" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding UserProfiles}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                    <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" Margin="0,0,0,5" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- SBECmd User Selection -->
+                <StackPanel Margin="0,0,0,10">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsSBECmd}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <TextBlock Text="SBECmd (ShellBags) Scan Mode:" FontWeight="Bold" Foreground="{StaticResource PrimaryActionBrush}" Margin="0,0,0,5"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <RadioButton GroupName="SBECmdMode" Content="Scan User Profiles" IsChecked="{Binding IsSBECmdManualMode, Converter={StaticResource InverseBooleanConverter}}" Margin="0,0,15,0" Foreground="{StaticResource PrimaryTextBrush}"/>
+                        <RadioButton GroupName="SBECmdMode" Content="Manual Folder Selection" IsChecked="{Binding IsSBECmdManualMode}" Foreground="{StaticResource PrimaryTextBrush}"/>
+                    </StackPanel>
+
+                    <StackPanel x:Name="SbeCmdLiveTogglePanel" Orientation="Horizontal" Margin="0,0,0,10">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSBECmdManualMode}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <TextBlock Text="SBECmd Options:" FontWeight="Bold" Foreground="{StaticResource PrimaryActionBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <CheckBox Content="Live Analysis" IsChecked="{Binding IsSBECmdLiveAnalysis}" Margin="0,0,10,0" Foreground="{StaticResource PrimaryTextBrush}" ToolTip="Process active registry hives (Capture current user ShellBags)"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="IsEnabled" Value="True"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSBECmdManualMode}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsSBECmdLiveAnalysis}" Value="True">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                        <Setter Property="Opacity" Value="0.5"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <TextBlock Text="Hives to Process:" FontWeight="Bold" Foreground="{StaticResource PrimaryActionBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <CheckBox Content="NTUSER.DAT" IsChecked="{Binding IsSbeCmdNtUser}" Margin="0,0,10,0" Foreground="{StaticResource PrimaryTextBrush}" ToolTip="Process User ShellBags"/>
+                        <CheckBox Content="UsrClass.dat" IsChecked="{Binding IsSbeCmdUsrClass}" Foreground="{StaticResource PrimaryTextBrush}" ToolTip="Process System ShellBags"/>
+                    </StackPanel>
+
+                    <StackPanel>
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="IsEnabled" Value="True"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSBECmdManualMode}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsSBECmdLiveAnalysis}" Value="True">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                        <Setter Property="Opacity" Value="0.5"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <TextBlock Text="Select User Profiles to Scan:" FontWeight="Bold" Foreground="{StaticResource PrimaryActionBrush}" Margin="0,0,0,5"/>
+                        <ScrollViewer MaxHeight="100" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding UserProfiles}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                    <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" Margin="0,0,0,5" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- RECmd Batch and Hive Selection -->
+                <StackPanel Margin="0,0,0,10">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsRECmd}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <TextBlock Text="RECmd Configuration:" FontWeight="Bold" Foreground="{StaticResource PrimaryActionBrush}" Margin="0,0,0,5"/>
+                    
+                    <TextBlock Text="Select System Hives to Process:" FontWeight="Bold" Foreground="{StaticResource PrimaryActionBrush}" Margin="0,0,0,5" FontSize="11"/>
+                    <ItemsControl ItemsSource="{Binding SystemHives}" Margin="10,0,0,10">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" Margin="0,0,15,5" Foreground="{StaticResource PrimaryTextBrush}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <CheckBox Content="Auto-select optimized batch files for each hive" 
+                              IsChecked="{Binding IsReCmdAutoBatch}" 
+                              Margin="0,0,0,10" Foreground="{StaticResource PrimaryTextBrush}"
+                              ToolTip="Automatically selects best batch file (e.g., SystemASEPs.reb) for each hive type."/>
+
+                    <Grid Margin="0,0,0,5" IsEnabled="{Binding IsReCmdAutoBatch, Converter={StaticResource InverseBooleanConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Manual Batch File (.reb) or Name:" VerticalAlignment="Center" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,10,0"/>
+                        <TextBox Grid.Column="1" Text="{Binding ReCmdBatchPath}" Margin="0,0,5,0"/>
+                        <Button Grid.Column="2" Content="..." Command="{Binding BrowseBatchCommand}" Width="30" ToolTip="Browse for .reb file"/>
+                    </Grid>
+                    <TextBlock Text="RECmd requires a batch file or search name if Auto is disabled." FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,0,0,0"/>
+                </StackPanel>
+
+                <!-- MFTEcmd Specialized Targets -->
+                <StackPanel Margin="0,0,0,10">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsMFTECmd}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <TextBlock Text="NTFS Metadata Targets (Optional):" FontWeight="Bold" Foreground="{StaticResource PrimaryActionBrush}" Margin="0,0,0,10"/>
+                    
+                    <Grid Margin="0,0,0,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="200"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="$MFT:" VerticalAlignment="Center" Foreground="{StaticResource PrimaryTextBrush}"/>
+                        <TextBox Grid.Column="1" Text="{Binding MftPath}" Margin="5,0"/>
+                        <Button Grid.Column="2" Content="..." Command="{Binding BrowseMFTCommand}" Width="30"/>
+                        <TextBlock Grid.Column="3" Text="Master File Table" VerticalAlignment="Center" Margin="10,0,0,0" FontSize="11" Foreground="{StaticResource SecondaryTextBrush}"/>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="200"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="$J (Journal):" VerticalAlignment="Center" Foreground="{StaticResource PrimaryTextBrush}"/>
+                        <TextBox Grid.Column="1" Text="{Binding JPath}" Margin="5,0"/>
+                        <Button Grid.Column="2" Content="..." Command="{Binding BrowseJCommand}" Width="30"/>
+                        <TextBlock Grid.Column="3" Text="USN Change Journal" VerticalAlignment="Center" Margin="10,0,0,0" FontSize="11" Foreground="{StaticResource SecondaryTextBrush}"/>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="200"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="$LogFile:" VerticalAlignment="Center" Foreground="{StaticResource PrimaryTextBrush}"/>
+                        <TextBox Grid.Column="1" Text="{Binding LogFilePath}" Margin="5,0"/>
+                        <Button Grid.Column="2" Content="..." Command="{Binding BrowseLogFileCommand}" Width="30"/>
+                        <TextBlock Grid.Column="3" Text="Metadata Transaction Log" VerticalAlignment="Center" Margin="10,0,0,0" FontSize="11" Foreground="{StaticResource SecondaryTextBrush}"/>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="200"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="$Boot:" VerticalAlignment="Center" Foreground="{StaticResource PrimaryTextBrush}"/>
+                        <TextBox Grid.Column="1" Text="{Binding BootPath}" Margin="5,0"/>
+                        <Button Grid.Column="2" Content="..." Command="{Binding BrowseBootCommand}" Width="30"/>
+                        <TextBlock Grid.Column="3" Text="Volume Boot Sector" VerticalAlignment="Center" Margin="10,0,0,0" FontSize="11" Foreground="{StaticResource SecondaryTextBrush}"/>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="200"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="$SDS:" VerticalAlignment="Center" Foreground="{StaticResource PrimaryTextBrush}"/>
+                        <TextBox Grid.Column="1" Text="{Binding SdsPath}" Margin="5,0"/>
+                        <Button Grid.Column="2" Content="..." Command="{Binding BrowseSDSCommand}" Width="30"/>
+                        <TextBlock Grid.Column="3" Text="Security Descriptors" VerticalAlignment="Center" Margin="10,0,0,0" FontSize="11" Foreground="{StaticResource SecondaryTextBrush}"/>
+                    </Grid>
+                </StackPanel>
+                <!-- Volatility Options -->
+                <StackPanel Margin="0,0,0,10">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsVolatility}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <TextBlock Text="Volatility 3 Options:" FontWeight="Bold" Foreground="{StaticResource PrimaryActionBrush}" Margin="0,0,0,10"/>
+                    <CheckBox Content="Live Memory Capture (requires Admin)" IsChecked="{Binding IsVolatilityLiveMode}" Margin="0,0,0,10" Foreground="{StaticResource PrimaryTextBrush}"/>
+                    
+                    <TextBlock Text="Select Plugins to Run:" FontWeight="Bold" Foreground="{StaticResource PrimaryActionBrush}" Margin="0,0,0,5" FontSize="11"/>
+                    <ScrollViewer MaxHeight="200" VerticalScrollBarVisibility="Auto" Margin="0,0,0,10">
+                        <ItemsControl ItemsSource="{Binding VolatilityPlugins}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox Content="{Binding Description}" IsChecked="{Binding IsSelected}" Margin="0,0,0,3" Foreground="{StaticResource PrimaryTextBrush}" ToolTip="{Binding Name}"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,10,0,0" Margin="0,0,0,10">
+                        <StackPanel>
+                            <CheckBox Content="Enable YARA Scan during execution" IsChecked="{Binding IsYaraScan}" Margin="0,0,0,5" Foreground="{StaticResource PrimaryTextBrush}" FontWeight="Bold"/>
+                            <Grid IsEnabled="{Binding IsYaraScan}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="YARA Rules File:" VerticalAlignment="Center" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,10,0"/>
+                                <TextBox Grid.Column="1" Text="{Binding YaraRulesPath}" Margin="0,0,5,0"/>
+                                <Button Grid.Column="2" Content="..." Command="{Binding BrowseYaraRulesCommand}" Width="30" ToolTip="Browse for .yar rules file"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Output Result CSV:" VerticalAlignment="Center" Foreground="{StaticResource PrimaryTextBrush}"/>
+                    <TextBox Grid.Column="1" Text="{Binding OutputPath}" Margin="5,0"/>
+                    <Button Grid.Column="2" Content="..." Command="{Binding BrowseOutputCommand}" Width="30" ToolTip="Save As..."/>
+                </Grid>
+
+                <!-- Hayabusa Specific Options -->
+                <StackPanel>
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsHayabusa}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    
+                    <Border BorderBrush="{StaticResource PrimaryActionBrush}" BorderThickness="0,1,0,0" Margin="0,5" Padding="0,10,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Hayabusa Triage Options:" FontWeight="Bold" Margin="0,0,0,10" Foreground="{StaticResource PrimaryActionBrush}"/>
+                            <WrapPanel Orientation="Horizontal">
+                                <CheckBox Content="Verbose (-v)" IsChecked="{Binding HayabusaVerbose}" Margin="0,0,20,0" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                <CheckBox Content="All Rules (-A)" IsChecked="{Binding HayabusaAllRules}" Margin="0,0,20,0" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                <CheckBox Content="Live Analysis (-l)" IsChecked="{Binding HayabusaLiveAnalysis}" ToolTip="Analyzes local Windows event logs directly" Foreground="{StaticResource PrimaryTextBrush}"/>
+                            </WrapPanel>
+                            <TextBlock Text="Note: Live analysis overrides the input folder path." Margin="0,5,0,0" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Visibility="{Binding HayabusaLiveAnalysis, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+                <!-- Browser History Options -->
+                <StackPanel Margin="0,0,0,10">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsBrowserHistory}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <TextBlock Text="Browser History Options:" FontWeight="Bold" Foreground="{StaticResource PrimaryActionBrush}" Margin="0,0,0,10"/>
+                    <WrapPanel Orientation="Horizontal" Margin="0,0,0,15">
+                        <CheckBox Content="Google Chrome" IsChecked="{Binding IsChromeSelected}" Margin="0,0,20,0" Foreground="{StaticResource PrimaryTextBrush}"/>
+                        <CheckBox Content="Microsoft Edge" IsChecked="{Binding IsEdgeSelected}" Margin="0,0,20,0" Foreground="{StaticResource PrimaryTextBrush}"/>
+                        <CheckBox Content="Mozilla Firefox" IsChecked="{Binding IsFirefoxSelected}" Margin="0,0,20,0" Foreground="{StaticResource PrimaryTextBrush}"/>
+                    </WrapPanel>
+
+                    <TextBlock Text="Select User Profiles to Scan:" FontWeight="Bold" Foreground="{StaticResource PrimaryActionBrush}" Margin="0,0,0,5"/>
+                    <ScrollViewer MaxHeight="150" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding UserProfiles}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" Margin="0,0,0,5" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Live Output Terminal -->
+        <Border Grid.Row="2" Margin="0,10,0,0" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+            <TextBox Name="TerminalOutput"
+                     Text="{Binding OutputLog}" 
+                     TextChanged="OutputLog_TextChanged"
+                     IsReadOnly="True" 
+                     VerticalScrollBarVisibility="Auto" 
+                     AcceptsReturn="True" 
+                     FontFamily="Consolas" 
+                     BorderThickness="0" 
+                     Background="{StaticResource WindowBackgroundBrush}" 
+                     Foreground="{StaticResource PrimaryTextBrush}" 
+                     Padding="10"/>
+        </Border>
+    </Grid>
+</UserControl>

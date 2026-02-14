@@ -1,0 +1,139 @@
+<Window x:Class="GlassDFIR.Views.ValueViewer"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GlassDFIR.Views"
+        mc:Ignorable="d"
+        Title="Value Viewer" Height="400" Width="600"
+        WindowStartupLocation="CenterOwner"
+        Background="#16161e" Foreground="#c0caf5"
+        WindowStyle="None" ResizeMode="CanResize" AllowsTransparency="True">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="32" ResizeBorderThickness="6" CornerRadius="0" GlassFrameThickness="0"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#24283b"/>
+            <Setter Property="Foreground" Value="#c0caf5"/>
+            <Setter Property="BorderBrush" Value="#414868"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#3b4261"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#1f2335"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TitleBarButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#c0caf5"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#3b4261"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#1f2335"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style x:Key="CloseButtonStyle" TargetType="Button" BasedOn="{StaticResource TitleBarButtonStyle}">
+             <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#f7768e"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    
+    <Border BorderBrush="#414868" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Title Bar -->
+                <RowDefinition Height="Auto"/> <!-- Search Bar -->
+                <RowDefinition Height="*"/>    <!-- Content -->
+                <RowDefinition Height="Auto"/> <!-- Footer -->
+            </Grid.RowDefinitions>
+
+            <!-- Title Bar -->
+            <Grid Grid.Row="0" Background="#1a1b26">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Text="👁️" Margin="10,0,10,0" VerticalAlignment="Center"/>
+                <TextBlock Text="Value Viewer" Grid.Column="1" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#7aa2f7"/>
+                
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                     <Button Click="Minimize_Click" Style="{StaticResource TitleBarButtonStyle}" Content="—"/>
+                     <Button Click="Maximize_Click" Style="{StaticResource TitleBarButtonStyle}" Content="☐"/>
+                     <Button Click="Close_Click" Style="{StaticResource CloseButtonStyle}" Content="✕"/>
+                </StackPanel>
+            </Grid>
+            
+            <!-- Search Bar (Start Collapsed) -->
+            <Grid x:Name="SearchBar" Grid.Row="1" Background="#24283b" Visibility="Collapsed">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Find:" VerticalAlignment="Center" Margin="5,0" Foreground="#a9b1d6"/>
+                <TextBox x:Name="SearchBox" Grid.Column="1" Margin="5,0" Padding="4,2" Background="#1a1b26" Foreground="#c0caf5" BorderThickness="0" KeyDown="SearchBox_KeyDown" TextChanged="SearchBox_TextChanged"/>
+                <TextBlock x:Name="MatchCountText" Grid.Column="2" Text="" VerticalAlignment="Center" Margin="5,0" Foreground="#565f89" FontSize="11" MinWidth="30" TextAlignment="Center"/>
+                <Button Content="Next" Grid.Column="3" Margin="5,0" Padding="8,2" Click="FindNext_Click" Background="#3b4261" Foreground="#c0caf5" BorderThickness="0"/>
+                <Button Content="✕" Grid.Column="4" Margin="5,0" Padding="4,2" Click="CloseSearch_Click" Background="Transparent" BorderThickness="0" Foreground="#f7768e"/>
+            </Grid>
+
+            <!-- Main Content -->
+            <RichTextBox x:Name="ValueRichTextBox" Grid.Row="2" Margin="10"
+                         Background="#1a1b26" Foreground="#c0caf5" 
+                         BorderBrush="#414868" BorderThickness="1"
+                         VerticalScrollBarVisibility="Auto"
+                         IsReadOnly="True" Padding="8" FontFamily="Consolas, Courier New, Monospace"
+                         IsDocumentEnabled="True"/>
+            
+            <!-- Footer -->
+            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,10">
+                <TextBlock Text="Ctrl+F to search" VerticalAlignment="Center" Margin="0,0,15,0" Foreground="#565f89" FontSize="11"/>
+                <Button Content="Copy Value" Click="Copy_Click" Margin="0,0,10,0"/>
+                <Button Content="Close" Click="Close_Click"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

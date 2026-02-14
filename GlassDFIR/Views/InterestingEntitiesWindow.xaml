@@ -1,0 +1,293 @@
+<Window x:Class="GlassDFIR.Views.InterestingEntitiesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GlassDFIR.Views"
+        mc:Ignorable="d"
+        Title="Interesting Entities" Height="600" Width="800"
+        WindowStartupLocation="CenterOwner"
+        Background="#16161e" Foreground="#c0caf5"
+        WindowStyle="None" ResizeMode="CanResize" AllowsTransparency="True">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="32" ResizeBorderThickness="6" CornerRadius="0" GlassFrameThickness="0"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#24283b"/>
+            <Setter Property="Foreground" Value="#c0caf5"/>
+            <Setter Property="BorderBrush" Value="#414868"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#3b4261"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#1f2335"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TitleBarButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#c0caf5"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#3b4261"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#1f2335"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style x:Key="CloseButtonStyle" TargetType="Button" BasedOn="{StaticResource TitleBarButtonStyle}">
+             <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#f7768e"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="#1a1b26"/>
+            <Setter Property="Foreground" Value="#c0caf5"/>
+            <Setter Property="BorderBrush" Value="#414868"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="RowBackground" Value="#1a1b26"/>
+            <Setter Property="AlternatingRowBackground" Value="#24283b"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#414868"/>
+            <Setter Property="VerticalGridLinesBrush" Value="#414868"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <EventSetter Event="MouseDoubleClick" Handler="DataGrid_MouseDoubleClick"/>
+
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#24283b"/>
+            <Setter Property="Foreground" Value="#7aa2f7"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="BorderBrush" Value="#414868"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+        </Style>
+
+        <Style TargetType="TabItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#565f89"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="Border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Margin="0,0,2,0">
+                            <ContentPresenter x:Name="ContentSite" VerticalAlignment="Center" HorizontalAlignment="Center" ContentSource="Header" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#1a1b26"/>
+                                <Setter Property="Foreground" Value="#7aa2f7"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="#c0caf5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style TargetType="ContextMenu">
+            <Setter Property="Background" Value="#1a1b26"/>
+            <Setter Property="Foreground" Value="#c0caf5"/>
+            <Setter Property="BorderBrush" Value="#414868"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContextMenu">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="2">
+                            <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="MenuItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#c0caf5"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Border x:Name="Border" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter Content="{TemplateBinding Header}" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#3b4261"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+    
+    <Border BorderBrush="#414868" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Title Bar -->
+                <RowDefinition Height="*"/>    <!-- Content -->
+                <RowDefinition Height="Auto"/> <!-- Footer -->
+            </Grid.RowDefinitions>
+
+            <!-- Title Bar -->
+            <Grid Grid.Row="0" Background="#1a1b26">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Text="🔍" Margin="10,0,10,0" VerticalAlignment="Center"/>
+                <TextBlock Text="Interesting Entities" Grid.Column="1" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#7aa2f7"/>
+                
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                     <Button Click="Minimize_Click" Style="{StaticResource TitleBarButtonStyle}" Content="—"/>
+                     <Button Click="Maximize_Click" Style="{StaticResource TitleBarButtonStyle}" Content="☐"/>
+                     <Button Click="Close_Click" Style="{StaticResource CloseButtonStyle}" Content="✕"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Main Content -->
+            <TabControl Grid.Row="1" Background="Transparent" BorderThickness="0" Margin="10">
+                <TabItem Header="IP Addresses">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="{Binding IpAddressCount, StringFormat='Found {0} unique IP addresses'}" Foreground="#565f89" Margin="0,0,0,10"/>
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding IpAddresses}">
+                            <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Copy Value" Click="CopyValue_Click"/>
+                                    <MenuItem Header="View Value" Click="ViewValue_Click"/>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="IP Address" Binding="{Binding Value}" Width="*"/>
+                                <DataGridTextColumn Header="Count" Binding="{Binding Count}" Width="100"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Email Addresses">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="{Binding EmailAddressCount, StringFormat='Found {0} unique email addresses'}" Foreground="#565f89" Margin="0,0,0,10"/>
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding EmailAddresses}">
+                             <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Copy Value" Click="CopyValue_Click"/>
+                                    <MenuItem Header="View Value" Click="ViewValue_Click"/>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                             <DataGrid.Columns>
+                                <DataGridTextColumn Header="Email Address" Binding="{Binding Value}" Width="*"/>
+                                <DataGridTextColumn Header="Count" Binding="{Binding Count}" Width="100"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Domains">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="{Binding DomainCount, StringFormat='Found {0} unique domains'}" Foreground="#565f89" Margin="0,0,0,10"/>
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding Domains}">
+                             <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Copy Value" Click="CopyValue_Click"/>
+                                    <MenuItem Header="View Value" Click="ViewValue_Click"/>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                             <DataGrid.Columns>
+                                <DataGridTextColumn Header="Domain" Binding="{Binding Value}" Width="*"/>
+                                <DataGridTextColumn Header="Count" Binding="{Binding Count}" Width="100"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Files">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="{Binding FileCount, StringFormat='Found {0} unique files with interesting extensions'}" Foreground="#565f89" Margin="0,0,0,10"/>
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding Files}">
+                             <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Copy Value" Click="CopyValue_Click"/>
+                                    <MenuItem Header="View Value" Click="ViewValue_Click"/>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                             <DataGrid.Columns>
+                                <DataGridTextColumn Header="Filename" Binding="{Binding Value}" Width="*"/>
+                                <DataGridTextColumn Header="Count" Binding="{Binding Count}" Width="100"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+            
+            <!-- Footer -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,10">
+                <Button Content="Close" Click="Close_Click"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

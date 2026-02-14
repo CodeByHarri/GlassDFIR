@@ -1,0 +1,206 @@
+﻿<Window x:Class="GlassDFIR.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GlassDFIR.Views"
+        xmlns:vm="clr-namespace:GlassDFIR.ViewModels"
+        xmlns:helpers="clr-namespace:GlassDFIR.Helpers"
+        mc:Ignorable="d"
+        Background="{StaticResource WindowBackgroundBrush}"
+        Title="GlassDFIR" Height="800" Width="1200"
+        WindowStartupLocation="CenterScreen"
+        HorizontalContentAlignment="Left"
+        Icon="Assets/Logo.png">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome GlassFrameThickness="0" CornerRadius="0" CaptionHeight="32" ResizeBorderThickness="5"/>
+    </WindowChrome.WindowChrome>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Custom Title Bar -->
+        <Grid Grid.Row="0" Background="{StaticResource SurfaceBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0">
+                <TextBlock Text="GlassDFIR" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                <TextBlock Text=" | " Foreground="{StaticResource DimmedTextBrush}" FontSize="12" VerticalAlignment="Center"
+                           Visibility="{Binding ActiveCaseDisplay, Converter={StaticResource NullToVisibilityConverter}}"/>
+                <TextBlock Text="{Binding ActiveCaseDisplay}" Foreground="{StaticResource PrimaryActionBrush}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"
+                           Visibility="{Binding ActiveCaseDisplay, Converter={StaticResource NullToVisibilityConverter}}"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
+
+                <Button Content="-" Click="Minimize_Click" Width="46" Height="32" Background="Transparent" BorderThickness="0" Foreground="{StaticResource PrimaryTextBrush}" Padding="0" Margin="0"/>
+                <Button Content="□" Click="Maximize_Click" Width="46" Height="32" Background="Transparent" BorderThickness="0" Foreground="{StaticResource PrimaryTextBrush}" Padding="0" Margin="0"/>
+                <Button Content="✕" Click="Close_Click" Width="46" Height="32" Background="Transparent" BorderThickness="0" Foreground="{StaticResource PrimaryTextBrush}" Padding="0" Margin="0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#f7768e"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- Main Content Section -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" MinWidth="50" MaxWidth="1000"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Collapsing Sidebar -->
+            <Border x:Name="SidebarBorder" Grid.Column="0" Width="Auto" MinWidth="50" MaxWidth="50" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0" ClipToBounds="True">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Style.Triggers>
+                            <EventTrigger RoutedEvent="MouseEnter">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="MaxWidth" To="1000" Duration="0:0:0.2">
+                                            <DoubleAnimation.EasingFunction>
+                                                <QuadraticEase EasingMode="EaseOut"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                            <EventTrigger RoutedEvent="MouseLeave">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="MaxWidth" To="50" Duration="0:0:0.2">
+                                            <DoubleAnimation.EasingFunction>
+                                                <QuadraticEase EasingMode="EaseOut"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+
+                <StackPanel>
+                    <ItemsControl x:Name="BladesList" ItemsSource="{Binding Blades}" Margin="0,10,0,0" HorizontalAlignment="Stretch">
+                        <ItemsControl.Resources>
+                            <!-- Standard Blade Template (Dashboard, etc) -->
+                            <DataTemplate DataType="{x:Type vm:BladeViewModel}">
+                                <Button Command="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}"
+                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Margin="0,1" SnapsToDevicePixels="True">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                            <Setter Property="Padding" Value="14,8"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                    <Setter Property="Background" Value="{StaticResource PrimaryActionBrush}"/>
+                                                    <Setter Property="Foreground" Value="#1a1b26"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Icon}" Width="20" TextAlignment="Left" Margin="0,0,15,0" FontSize="16"/>
+                                        <TextBlock Text="{Binding Title}" FontSize="14" VerticalAlignment="Center" SnapsToDevicePixels="True" TextWrapping="NoWrap"/>
+                                    </StackPanel>
+                                </Button>
+                            </DataTemplate>
+
+                            <!-- Category Blade Template -->
+                            <DataTemplate DataType="{x:Type vm:CategoryBladeViewModel}">
+                                <StackPanel>
+                                    <Button Command="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}"
+                                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Margin="0,1" SnapsToDevicePixels="True">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                                <Setter Property="Padding" Value="14,8"/>
+                                            </Style>
+                                        </Button.Style>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Icon}" Width="20" TextAlignment="Left" Margin="0,0,15,0" FontSize="16"/>
+                                            <TextBlock Text="{Binding Title}" FontSize="14" VerticalAlignment="Center" FontWeight="SemiBold" SnapsToDevicePixels="True" TextWrapping="NoWrap"/>
+                                            <TextBlock Text="{Binding IsExpanded, Converter={StaticResource BooleanToArrowConverter}}" Margin="10,0,0,0" FontSize="10" VerticalAlignment="Center" Opacity="0.5"/>
+                                        </StackPanel>
+                                    </Button>
+                                    
+                                    <ItemsControl ItemsSource="{Binding SubBlades}" Visibility="{Binding IsExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" HorizontalAlignment="Stretch">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button Command="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}"
+                                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Margin="0,1" SnapsToDevicePixels="True">
+                                                    <Button.Style>
+                                                        <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                                            <Setter Property="Padding" Value="54,6,14,6"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                                    <Setter Property="Background" Value="{StaticResource PrimaryActionBrush}"/>
+                                                                    <Setter Property="Foreground" Value="#1a1b26"/>
+                                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                                </DataTrigger>
+                                                                <!-- Use SidebarBorder width to detect collapse -->
+                                                                <DataTrigger Binding="{Binding ElementName=SidebarBorder, Path=ActualWidth, Converter={StaticResource LessThanConverter}, ConverterParameter=60}" Value="True">
+                                                                    <Setter Property="Padding" Value="14,6,14,6"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Button.Style>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Icon}" Width="15" TextAlignment="Left" Margin="0,0,10,0" FontSize="12" Foreground="{Binding IconColor}"/>
+                                                        <TextBlock Text="{Binding Title}" FontSize="12" VerticalAlignment="Center" SnapsToDevicePixels="True" TextWrapping="NoWrap"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </DataTemplate>
+
+                        </ItemsControl.Resources>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+
+            <!-- Content Area -->
+            <ContentControl Grid.Column="1" Content="{Binding CurrentBlade}">
+                <ContentControl.Resources>
+                    <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
+                        <local:DashboardView/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:ToolRunnerViewModel}">
+                        <local:ToolRunView/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:SearchViewModel}">
+                        <local:SearchView/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:RapidSearchViewModel}">
+                        <local:RapidSearchView/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:QueryHistoryViewModel}">
+                        <local:QueryHistoryView/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:TimelineViewModel}">
+                        <local:TimelineView/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:CaseManagementViewModel}">
+                        <local:CaseManagementView/>
+                    </DataTemplate>
+                </ContentControl.Resources>
+            </ContentControl>
+        </Grid>
+    </Grid>
+</Window>
